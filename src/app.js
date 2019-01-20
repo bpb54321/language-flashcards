@@ -26,7 +26,11 @@ app.use(
 
 app.setHandler({
     LAUNCH() {
-        return this.toIntent('HelloWorldIntent');
+        const menu = 'What would you like to do? You can:\n' +
+          'Create a new deck.\n' +
+          'Add a card to a deck.\n' +
+          'Study a deck.\n'
+        this.ask(menu, menu);
     },
 
     HelloWorldIntent() {
