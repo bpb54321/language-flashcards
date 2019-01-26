@@ -36,6 +36,18 @@ app.setHandler({
     this.ask(menu, menu);
   },
   CreateNewDeckIntent() {
+    // const requiredParameters = {
+    //   "deckName": "What's the name of the deck?",
+    // };
+    //
+    // for (let parameter in requiredParameters) {
+    //   if (!this.$inputs[parameter]) {
+    //     switch (parameter) {
+    //
+    //     }
+    //   }
+    // }
+
     this.$session.$data.deckName = this.$inputs.deckName.value;
 
     if (!this.$user.$data.decks) {
@@ -53,24 +65,19 @@ app.setHandler({
             Would you like to add a new card to this deck?`;
     this.ask(speech, speech);
   },
-  // DeckNameIntent() {
-  //     this.$session.$data.deckName = this.$inputs.deckName.value;
-  //     const speech = `Just to confirm, you want to create a deck named
-  //         ${this.$session.$data.deckName} is that correct?`;
-  //     this.ask(speech, speech);
-  // },
-  // DeckNameConfirmIntent() {
-  //     if (!this.$user.$data.decks) {
-  //         this.$user.$data.decks = {};
-  //     }
-  //
-  //     // Create a deck whose key is the deck name, and populate with an empty array of cards
-  //     this.$user.$data.decks[this.$session.$data.deckName] = [];
-  //
-  //     const speech = `OK, I have created a new deck called ${this.$session.$data.deckName}.
-  //         Would you like to now add a card to this deck?`;
-  // },
-  CreateCardIntent() {
+  NewDeckCreatedState: {
+    YesIntent() {
+      return this.toIntent('CreateCardIntent');
+    },
+    NoIntent() {
+      return this.toIntent('END');
+    }
+  },
+  AddCardIntent() {
+    console.log("Placeholder message");
+    // this.$googleAction
+  },
+  END() {
 
   },
 });
