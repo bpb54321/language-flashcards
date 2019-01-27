@@ -62,7 +62,7 @@ function addCard() {
   this.ask(`${confirmation} ${speech}`, speech);
 }
 
-function addDeckToDatabase(deckName) {
+function createNewDeck(deckName) {
   if (!this.$user.$data.decks) {
     this.$user.$data.decks = {};
   }
@@ -72,6 +72,15 @@ function addDeckToDatabase(deckName) {
   };
 
   this.$user.$data.decks[deckName] = newDeck;
+
+  // Add deckName to session data
+  this.$session.$data.deckName = deckName;
+
+  let confirmation = `OK, I have created a new deck called ${deckName}.`;
+  let question =`Would you like to add a new card to this deck?`;
+
+  this.followUpState('AddingCardState')
+    .ask(confirmation + ' ' + question, question);
 }
 
 // ------------------------------------------------------------------
@@ -91,42 +100,36 @@ app.setHandler({
     this.ask(menu, menu);
   },
   CreateNewDeckIntent() {
-    let deckName;
-    let confirmation;
-    let question;
 
     // Ask for deckName if not provided
     if(this.$inputs.deckName.value === '') {
-      confirmation = `OK, creating a deck.`;
-      question = `What would you like to call the deck?`;
+      let confirmation = `OK, creating a deck.`;
+      let question = `What would you like to call the deck?`;
+
+      // Return stops the function and sends the response
       this.followUpState('CreatingDeckState')
         .ask(confirmation + ' ' + question, question);
+      return;
     }
 
     // Create a new deck if deckName is provided
-    deckName = this.$inputs.deckName.value;
+    let deckName = this.$inputs.deckName.value;
 
-    addDeckToDatabase.call(this, deckName);
-
-    // Add deckName to session data
-    this.$session.$data.deckName = deckName;
-
-    confirmation = `OK, I have created a new deck called ${deckName}.`;
-    question =`Would you like to add a new card to this deck?`;
-
-    this.followUpState('AddingCardState')
-      .ask(confirmation + ' ' + question, question);
+    createNewDeck.call(this, deckName);
   },
   AddCardIntent() {
-    addCard.bind(this);
+    addCard.call(this);
   },
   END() {
 
   },
   CreatingDeckState: {
+    // Grab deckName and create a deck
     Unhandled() {
-      // Getting deck name
-      let deckName = this.$request.conversation;
+      // Getting deck name from the user's text
+      let deckName = this.$request.queryResult.queryText;
+
+      createNewDeck.call(this, deckName);
     }
   },
   // AddingCardDeckNameState: {
