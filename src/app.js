@@ -19,6 +19,60 @@ app.use(
   new FileDb()
 );
 
+function addCard() {
+  let deckName;
+  let speech;
+  let phrase;
+  let deck;
+
+  if (this.$session.$data.deckName) {
+    deckName = this.$session.$data.deckName;
+  } else {
+    deckName = this.$inputs.deckName.value;
+  }
+
+  if (!deckName) {
+    speech = `What is the name of the deck to which you want to add the card?`;
+    this.ask(speech, speech);
+  }
+
+  if (this.$inputs.phrase.value) {
+    phrase = this.$inputs.phrase.value;
+  }
+
+  if (!phrase) {
+    speech = `What phrase in English should we write on the card?`;
+    this.ask(speech, speech);
+  }
+
+  deck = this.$user.$data.decks[deckName];
+
+  // Get the locale of the request
+  const locale = this.$user.getLocale();
+  const languageCode = locale.substr(0, 1);
+
+  const newCard = {};
+  newCard[languageCode] = phrase;
+
+  deck.cards.push(newCard);
+
+  let confirmation = `OK, I added a card with the phrase ${phrase} to the deck ${deckName}.`;
+  speech = `Add another card or return to the main menu?`;
+
+  this.ask(`${confirmation} ${speech}`, speech);
+}
+
+function addDeckToDatabase(deckName) {
+  if (!this.$user.$data.decks) {
+    this.$user.$data.decks = {};
+  }
+
+  let newDeck = {
+    cards: [],
+  };
+
+  this.$user.$data.decks[deckName] = newDeck;
+}
 
 // ------------------------------------------------------------------
 // APP LOGIC
@@ -37,45 +91,55 @@ app.setHandler({
     this.ask(menu, menu);
   },
   CreateNewDeckIntent() {
-    const deckName = this.$inputs.deckName.value;
+    let deckName;
+    let confirmation;
+    let question;
 
-    if (!this.$user.$data.decks) {
-      this.$user.$data.decks = {};
+    // Ask for deckName if not provided
+    if(this.$inputs.deckName.value === '') {
+      confirmation = `OK, creating a deck.`;
+      question = `What would you like to call the deck?`;
+      this.followUpState('CreatingDeckState')
+        .ask(confirmation + ' ' + question, question);
     }
 
-    let newDeck = {
-      cards: [],
-    };
+    // Create a new deck if deckName is provided
+    deckName = this.$inputs.deckName.value;
 
-    this.$user.$data.decks[deckName] = newDeck;
+    addDeckToDatabase.call(this, deckName);
 
-    const speech = `OK, I have created a new deck called ${deckName}.
-            Would you like to add a new card to this deck?`;
-    this.ask(speech, speech);
+    // Add deckName to session data
+    this.$session.$data.deckName = deckName;
+
+    confirmation = `OK, I have created a new deck called ${deckName}.`;
+    question =`Would you like to add a new card to this deck?`;
+
+    this.followUpState('AddingCardState')
+      .ask(confirmation + ' ' + question, question);
   },
   AddCardIntent() {
-    const deckName = this.$inputs.deckName.value;
-    const phrase = this.$inputs.phrase.value;
-
-    const deck = this.$user.$data.decks[deckName];
-
-    // Get the local of the request
-    const locale = this.$user.getLocale();
-    const languageCode = locale.substr(0, 1);
-
-    const newCard = {};
-    newCard[languageCode] = phrase;
-
-    deck.cards.push(newCard);
-
-    const confirmation = `OK, I added a card with the phrase ${phrase} to the deck ${deckName}.`;
-    const speech = `Add another card or return to the main menu?`;
-
-    this.ask(`${confirmation} ${speech}`, speech);
+    addCard.bind(this);
   },
   END() {
 
   },
+  CreatingDeckState: {
+    Unhandled() {
+      // Getting deck name
+      let deckName = this.$request.conversation;
+    }
+  },
+  // AddingCardDeckNameState: {
+  //   DeckNameIntent() {
+  //     return this.toIntent('AddCardIntent');
+  //   }
+  // },
+  // AddingCardPhraseState: {
+  //   PhraseIntent() {
+  //     return this.toIntent('AddCardIntent');
+  //   }
+  // }
+
 });
 
 module.exports.app = app;
