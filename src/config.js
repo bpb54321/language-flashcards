@@ -3,10 +3,9 @@
 // ------------------------------------------------------------------
 
 module.exports = {
-  logging: true,
+  logging: false,
 
   intentMap: {
-     'AMAZON.StopIntent': 'END',
   },
 
   db: {

@@ -27,10 +27,13 @@ function addCard(deckName, phrase) {
   let languageCode;
   let newCard;
 
+  console.log(`deckName: ${deckName}`);
+
   deck = this.$user.$data.decks[deckName];
+  console.log(`deck: ${deck}`);
 
   // Get the locale of the request
-  locale = this.$user.getLocale();
+  locale = this.getLocale();
   languageCode = locale.substr(0, 1);
 
   newCard = {};
@@ -73,10 +76,11 @@ app.setHandler({
   MenuIntent() {
     let speech;
 
-    const menu = 'What would you like to do? You can:\n' +
+    const menu = 'This is the Main Menu.\n' +
+      'What would you like to do? You can:\n' +
       'Create a new deck.\n' +
       'Add a card to a deck.\n' +
-      'Add translations to cards with phrases in only one language in a deck\n' +
+      'Add translations to cards.\n' +
       'Study a deck.\n';
 
     // Check to see if there's an intro before listing the menu
@@ -98,13 +102,15 @@ app.setHandler({
       // Return stops the function and sends the response
       this.followUpState('CreatingDeckState')
         .ask(confirmation + ' ' + question, question);
-      return;
+      console.log('deckName parameter is empty');
+    } else {
+      // Create a new deck if deckName is provided
+      let deckName = this.$inputs.deckName.value;
+
+      console.log(`deckName parameter is ${deckName}`);
+
+      createNewDeck.call(this, deckName);
     }
-
-    // Create a new deck if deckName is provided
-    let deckName = this.$inputs.deckName.value;
-
-    createNewDeck.call(this, deckName);
   },
   AddCardIntent() {
 
@@ -120,13 +126,23 @@ app.setHandler({
     }
     addCard.call(this);
   },
+  YesIntent() {
+    this.tell(`This is the global Yes Intent`);
+  },
+  NoIntent() {
+    this.tell(`This is the global No Intent`);
+  },
+  Unhandled() {
+    let speech = `You have hit the global unhandled state`;
+    this.tell(speech);
+  },
   END() {
 
   },
   CreatingDeckState: {
     // Grab deckName and create a deck
     Unhandled() {
-      // Getting deck name from the user's text
+      console.log(`Getting deck name from the user's text`);
       let deckName = this.$request.queryResult.queryText;
 
       createNewDeck.call(this, deckName);
@@ -135,11 +151,15 @@ app.setHandler({
   AddingCardState: {
     // We confirm that we want to add a card to the current deck
     YesIntent() {
+      console.log(`AddingCardState:YesIntent`);
       let confirm = `OK, let's add a card to the deck ${this.$session.$data.deckName}.`;
       let question = `What is the phrase in English that you would like to write on the card?`;
       this.followUpState('AddingCardState.GettingPhraseState')
         .ask(confirm + ' ' + question, question);
-      return;
+    },
+    Unhandled() {
+      let speech = `This is an unhandled intent in Adding Card State`;
+      this.tell(speech);
     },
     GettingDeckNameState: {
       Unhandled() {
@@ -192,7 +212,7 @@ app.setHandler({
       Unhandled() {
         let phrase = this.$request.queryResult.queryText;
 
-        createNewCard.call(this, this.$session.$data.deckName, phrase);
+        addCard.call(this, this.$session.$data.deckName, phrase);
       },
     }
   },
