@@ -1,0 +1,9 @@
+# behat.yml
+default:
+  extensions:
+    Behat\MinkExtension:
+      base_url:  'https://console.actions.google.com'
+      javascript_session: selenium2
+        browser_name: 'chrome'
+        selenium2:
+          capabilities: { "browserName": "chrome", "browser": "chrome" }
