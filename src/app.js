@@ -19,47 +19,30 @@ app.use(
   new FileDb()
 );
 
-function addCard() {
-  let deckName;
-  let speech;
-  let phrase;
+function addCard(deckName, phrase) {
+  let confirmation;
+  let question;
   let deck;
-
-  if (this.$session.$data.deckName) {
-    deckName = this.$session.$data.deckName;
-  } else {
-    deckName = this.$inputs.deckName.value;
-  }
-
-  if (!deckName) {
-    speech = `What is the name of the deck to which you want to add the card?`;
-    this.ask(speech, speech);
-  }
-
-  if (this.$inputs.phrase.value) {
-    phrase = this.$inputs.phrase.value;
-  }
-
-  if (!phrase) {
-    speech = `What phrase in English should we write on the card?`;
-    this.ask(speech, speech);
-  }
+  let locale;
+  let languageCode;
+  let newCard;
 
   deck = this.$user.$data.decks[deckName];
 
   // Get the locale of the request
-  const locale = this.$user.getLocale();
-  const languageCode = locale.substr(0, 1);
+  locale = this.$user.getLocale();
+  languageCode = locale.substr(0, 1);
 
-  const newCard = {};
+  newCard = {};
   newCard[languageCode] = phrase;
 
   deck.cards.push(newCard);
 
-  let confirmation = `OK, I added a card with the phrase ${phrase} to the deck ${deckName}.`;
-  speech = `Add another card or return to the main menu?`;
+  confirmation = `OK, I added a card with the phrase ${phrase} to the deck ${deckName}.`;
+  question = `Add another card or return to the main menu?`;
 
-  this.ask(`${confirmation} ${speech}`, speech);
+  this.followUpState(null)
+    .ask(`${confirmation} ${question}`, question);
 }
 
 function createNewDeck(deckName) {
@@ -83,26 +66,32 @@ function createNewDeck(deckName) {
     .ask(confirmation + ' ' + question, question);
 }
 
-// ------------------------------------------------------------------
-// APP LOGIC
-// ------------------------------------------------------------------
-
 app.setHandler({
   LAUNCH() {
     return this.toIntent('MenuIntent');
   },
   MenuIntent() {
+    let speech;
+
     const menu = 'What would you like to do? You can:\n' +
       'Create a new deck.\n' +
       'Add a card to a deck.\n' +
       'Add translations to cards with phrases in only one language in a deck\n' +
       'Study a deck.\n';
+
+    // Check to see if there's an intro before listing the menu
+    if (this.$session.$data.introduction) {
+      speech = this.$session.$data.introduction + '\n' + menu;
+    } else {
+      speech = menu;
+    }
+
     this.ask(menu, menu);
   },
   CreateNewDeckIntent() {
 
     // Ask for deckName if not provided
-    if(this.$inputs.deckName.value === '') {
+    if (this.$inputs.deckName.value === '') {
       let confirmation = `OK, creating a deck.`;
       let question = `What would you like to call the deck?`;
 
@@ -118,6 +107,17 @@ app.setHandler({
     createNewDeck.call(this, deckName);
   },
   AddCardIntent() {
+
+    // Ask for deckName if not provided in input or session
+    if (this.$inputs.deckName.value === '' && !this.$session.deckName) {
+      let confirmation = `OK, adding a card.`;
+      let question = `What is the name of the deck would you like to add this card to?`;
+
+      // Return stops the function and sends the response
+      this.followUpState('CreatingDeckState')
+        .ask(confirmation + ' ' + question, question);
+      return;
+    }
     addCard.call(this);
   },
   END() {
@@ -130,6 +130,70 @@ app.setHandler({
       let deckName = this.$request.queryResult.queryText;
 
       createNewDeck.call(this, deckName);
+    }
+  },
+  AddingCardState: {
+    // We confirm that we want to add a card to the current deck
+    YesIntent() {
+      let confirm = `OK, let's add a card to the deck ${this.$session.$data.deckName}.`;
+      let question = `What is the phrase in English that you would like to write on the card?`;
+      this.followUpState('AddingCardState.GettingPhraseState')
+        .ask(confirm + ' ' + question, question);
+      return;
+    },
+    GettingDeckNameState: {
+      Unhandled() {
+        let confirm;
+        let question;
+
+        let deckName = this.$request.queryResult.queryText;
+        let deck = this.$user.$data.decks[deckName];
+
+        if (!deck) {
+          confirm = `I'm sorry, I can't find a deck named ${deckName}.`;
+          question = `Would you like me to list all the decks, and you can select one from the list?`;
+          this.followUpState('GettingDeckNameState.ListingDeckNamesState')
+            .ask(confirm + ' ' + question, question);
+          return;
+        }
+
+        this.$session.$data.deckName = deckName;
+
+        confirm = `OK, I'll add a card to the deck ${this.$session.$data.deckName}.`;
+        question = `What is the phrase in English that you would like to write on the card?`;
+        this.followUpState('AddingCardState.GettingPhraseState')
+          .ask(confirm + ' ' + question, question);
+        return;
+      },
+      ListingDeckNamesState: {
+        YesIntent() {
+          let decks = this.$user.$data.decks;
+          let deckNames = Object.keys(decks);
+
+          let speech = `OK, listing the deck names. To select the deck you want to add a card to, ` +
+            `say the number of the deck.\n`;
+          for (let i = 0; i < deckNames.length; i++) {
+            speech += `${i}. ${deckNames[i]}`;
+          }
+
+          this.followUpState('ListingDeckNamesState.SelectingDeckState')
+            .ask(speech);
+        },
+        NoIntent() {
+          // Add an introduction to session data which will be prepended to the
+          // menu speech. Then, route to menu.
+          this.$session.$data.introduction = `OK, returning to Main Menu.`;
+          this.toStatelessIntent('MenuIntent');
+        },
+      }
+    },
+    GettingPhraseState: {
+      // We get the phrase for the card
+      Unhandled() {
+        let phrase = this.$request.queryResult.queryText;
+
+        createNewCard.call(this, this.$session.$data.deckName, phrase);
+      },
     }
   },
   // AddingCardDeckNameState: {
