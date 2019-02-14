@@ -5,12 +5,25 @@
 module.exports = {
   logging: false,
 
-  intentMap: {
-  },
+  intentMap: {},
 
   db: {
-       FileDb: {
-           pathToFile: '../db/db.json',
-       }
-   },
- };
+    FileDb: {
+      pathToFile: '../db/db.json',
+    }
+  },
+  cms: {
+    GoogleSheetsCMS: {
+      spreadsheetId: '1MHErZu1Lby7d7lARWaauaibsdnnewozMo5VlGpOcNoc',
+      access: 'public',
+      sheets: [
+        {
+          name: 'responses',
+          type: 'Responses',
+          position: 1,
+        },
+      ]
+    }
+  },
+
+};

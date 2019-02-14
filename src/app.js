@@ -9,6 +9,8 @@ const {Alexa} = require('jovo-platform-alexa');
 const {GoogleAssistant} = require('jovo-platform-googleassistant');
 const {JovoDebugger} = require('jovo-plugin-debugger');
 const {FileDb} = require('jovo-db-filedb');
+const {GoogleSheetsCMS} = require('jovo-cms-googlesheets');
+
 
 const app = new App();
 
@@ -16,7 +18,8 @@ app.use(
   new Alexa(),
   new GoogleAssistant(),
   new JovoDebugger(),
-  new FileDb()
+  new FileDb(),
+  new GoogleSheetsCMS()
 );
 
 function addCard(deckName, phrase) {
@@ -76,12 +79,11 @@ app.setHandler({
   MenuIntent() {
     let speech;
 
-    const menu = 'This is the Main Menu.\n' +
-      'What would you like to do? You can:\n' +
-      'Create a new deck.\n' +
-      'Add a card to a deck.\n' +
-      'Add translations to cards.\n' +
-      'Study a deck.\n';
+    const menu = `${this.t('menu.intro')}
+      ${this.t('menu.option1')}
+      ${this.t('menu.option2')}
+      ${this.t('menu.option3')}
+      ${this.t('menu.option4')}`;
 
     // Check to see if there's an intro before listing the menu
     if (this.$session.$data.introduction) {
