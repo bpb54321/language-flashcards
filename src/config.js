@@ -22,7 +22,22 @@ module.exports = {
           type: 'Responses',
           position: 1,
         },
-      ]
+        {
+          name: '1',
+          type: 'KeyValue',
+          position: 2,
+        },
+        {
+          name: '2',
+          type: 'KeyValue',
+          position: 3,
+        },
+        {
+          name: '3',
+          type: 'KeyValue',
+          position: 4,
+        },
+      ],
     }
   },
 

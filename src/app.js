@@ -77,22 +77,9 @@ app.setHandler({
     return this.toIntent('MenuIntent');
   },
   MenuIntent() {
-    let speech;
+    let speech = this.t('menu')[0];
 
-    const menu = `${this.t('menu.intro')}
-      ${this.t('menu.option1')}
-      ${this.t('menu.option2')}
-      ${this.t('menu.option3')}
-      ${this.t('menu.option4')}`;
-
-    // Check to see if there's an intro before listing the menu
-    if (this.$session.$data.introduction) {
-      speech = this.$session.$data.introduction + '\n' + menu;
-    } else {
-      speech = menu;
-    }
-
-    this.ask(menu, menu);
+    this.ask(speech, speech);
   },
   CreateNewDeckIntent() {
 
@@ -127,6 +114,19 @@ app.setHandler({
       return;
     }
     addCard.call(this);
+  },
+  StudyIntent() {
+    let speech = this.$cms.t('choose_set')[0];
+
+    let setListSpeech = '';
+    for (let i = 1; i <= 3; i++) {
+      let setName = this.$cms[i]['name'];
+      setListSpeech += `\n${i}. ${setName}`;
+    }
+
+    speech += `\n ${setListSpeech}`;
+
+    this.ask(speech, speech);
   },
   YesIntent() {
     this.tell(`This is the global Yes Intent`);
