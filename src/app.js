@@ -116,17 +116,33 @@ app.setHandler({
     addCard.call(this);
   },
   StudyIntent() {
-    let speech = this.$cms.t('choose_set')[0];
+    let speech = '';
 
-    let setListSpeech = '';
-    for (let i = 1; i <= 3; i++) {
-      let setName = this.$cms[i]['name'];
-      setListSpeech += `\n${i}. ${setName}`;
+    if (this.$session.$data.speechFromPreviousHandler) {
+      speech += this.$session.$data.speechFromPreviousHandler;
     }
 
-    speech += `\n ${setListSpeech}`;
+    speech += this.$cms.t('choose_set')[0];
 
-    this.ask(speech, speech);
+    this.$session.$data.setNames = [];
+
+    let setNamesSpeech = '';
+    let setName;
+    let setNameLowercase;
+
+    for (let i = 1; i <= 3; i++) {
+      setName = this.$cms[i]['name'];
+      setNameLowercase = setName.toLowerCase();
+
+      // Save set names as an array for future reference
+      this.$session.$data.setNames.push(setNameLowercase);
+      setNamesSpeech += `\n${setName};`;
+    }
+
+    speech += `\n ${setNamesSpeech}`;
+
+    this.followUpState('ChoosingSetState')
+      .ask(speech, speech);
   },
   YesIntent() {
     this.tell(`This is the global Yes Intent`);
@@ -228,7 +244,22 @@ app.setHandler({
   //     return this.toIntent('AddCardIntent');
   //   }
   // }
+  ChoosingSetState: {
+    Unhandled() {
+      let speech;
+      let setName = this.$request.queryResult.queryText;
+      let setNameLowercase = setName.toLowerCase();
 
+      if (this.$session.$data.setNames.includes(setNameLowercase)) {
+        speech = `OK, let's study!`;
+        this.tell(speech);
+      } else {
+        this.$session.$data.speechFromPreviousHandler = `Sorry, I couldn't find` +
+          `a set called ${setName}.\n`;
+        return this.toStatelessIntent('StudyIntent');
+      }
+    }
+  }
 });
 
 module.exports.app = app;
