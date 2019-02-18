@@ -251,14 +251,32 @@ app.setHandler({
       let setNameLowercase = setName.toLowerCase();
 
       if (this.$session.$data.setNames.includes(setNameLowercase)) {
-        speech = `OK, let's study!`;
-        this.tell(speech);
+
+        const currentSetIndex =
+          this.$session.$data.setNames.indexOf(setNameLowercase) + 1;
+
+        // Save the set's questions so we can ask them later
+        this.$session.$data.questions = this.$cms[currentSetIndex]['questions'];
+
+        const setIntroductionPhrase = this.$cms[currentSetIndex].introduction;
+        speech = `OK. ${setIntroductionPhrase}. Shall we begin?`;
+
+        this.followUpState('AskingQuestionsState')
+          .ask(speech, speech);
+
       } else {
+
         this.$session.$data.speechFromPreviousHandler = `Sorry, I couldn't find` +
           `a set called ${setName}.\n`;
         return this.toStatelessIntent('StudyIntent');
+
       }
     }
+  },
+  AskingQuestionsState: {
+    YesIntent() {
+      this.tell('This will be your first question!');
+    },
   }
 });
 
