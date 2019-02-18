@@ -155,7 +155,7 @@ app.setHandler({
     this.tell(speech);
   },
   END() {
-
+    this.tell('Goodbye!');
   },
   CreatingDeckState: {
     // Grab deckName and create a deck
@@ -257,11 +257,12 @@ app.setHandler({
 
         // Save the set's questions so we can ask them later
         this.$session.$data.questions = this.$cms[currentSetIndex]['questions'];
+        this.$session.$data.questionIndex = 1;
 
         const setIntroductionPhrase = this.$cms[currentSetIndex].introduction;
         speech = `OK. ${setIntroductionPhrase}. Shall we begin?`;
 
-        this.followUpState('AskingQuestionsState')
+        this.followUpState('AskingQuestionState')
           .ask(speech, speech);
 
       } else {
@@ -273,11 +274,34 @@ app.setHandler({
       }
     }
   },
-  AskingQuestionsState: {
+  AskingQuestionState: {
     YesIntent() {
-      this.tell('This will be your first question!');
+      let speech;
+
+      let question = this.$session.$data.questions[this.$session.$data.questionIndex];
+
+      speech = this.t('question_introduction', {
+        questionIndex: this.$session.$data.questionIndex,
+        questionFront: question.front,
+      })[0];
+
+      this.followUpState('AnsweringQuestionState')
+        .ask(speech, speech);
     },
-  }
+  },
+  AnsweringQuestionState: {
+    Unhandled() {
+      let speech;
+      let userResponse = this.$request.queryResult.queryText;
+
+      speech = this.t('response_confirmation', {
+        userResponse: userResponse,
+      })[0];
+
+      this.followUpState('ConfirmingUserResponseState')
+        .ask(speech,speech);
+    }
+  },
 });
 
 module.exports.app = app;
