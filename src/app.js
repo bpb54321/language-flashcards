@@ -118,31 +118,40 @@ app.setHandler({
   StudyIntent() {
     let speech = '';
 
+    // This might be a message saying that the requested set wasn't found
     if (this.$session.$data.speechFromPreviousHandler) {
       speech += this.$session.$data.speechFromPreviousHandler;
     }
 
-    speech += this.$cms.t('choose_set')[0];
-
+    // Store an array of lowercase set names in the session
     this.$session.$data.setNames = [];
 
-    let setNamesSpeech = '';
+    // Will be used to list the set names in speech response to user
+    let setNamesWithCapitalization = [];
+
     let setName;
     let setNameLowercase;
 
     for (let i = 1; i <= 3; i++) {
+
+      // Each data sheet is named by a simple number/index
       setName = this.$cms[i]['name'];
       setNameLowercase = setName.toLowerCase();
 
-      // Save set names as an array for future reference
+      setNamesWithCapitalization.push(setName);
       this.$session.$data.setNames.push(setNameLowercase);
-      setNamesSpeech += `\n${setName};`;
+
     }
 
-    speech += `\n ${setNamesSpeech}`;
+    const setNamesString = setNamesWithCapitalization.join(', ');
+
+    speech += this.$cms.t('StudyIntent', {
+      setNamesString: setNamesString,
+    })[0];
 
     this.followUpState('ChoosingSetState')
       .ask(speech, speech);
+
   },
   YesIntent() {
     this.tell(`This is the global Yes Intent`);
@@ -245,9 +254,9 @@ app.setHandler({
   //   }
   // }
   ChoosingSetState: {
-    Unhandled() {
+    ChooseSetIntent() {
       let speech;
-      let setName = this.$request.queryResult.queryText;
+      let setName = this.$inputs['setName'].value;
       let setNameLowercase = setName.toLowerCase();
 
       if (this.$session.$data.setNames.includes(setNameLowercase)) {
@@ -260,7 +269,10 @@ app.setHandler({
         this.$session.$data.questionIndex = 1;
 
         const setIntroductionPhrase = this.$cms[currentSetIndex].introduction;
-        speech = `OK. ${setIntroductionPhrase}. Shall we begin?`;
+
+        speech = this.t('ChooseSetIntent', {
+          setIntroductionPhrase: setIntroductionPhrase,
+        })[0];
 
         this.followUpState('AskingQuestionState')
           .ask(speech, speech);
@@ -297,6 +309,8 @@ app.setHandler({
       speech = this.t('response_confirmation', {
         userResponse: userResponse,
       })[0];
+
+
 
       this.followUpState('ConfirmingUserResponseState')
         .ask(speech,speech);

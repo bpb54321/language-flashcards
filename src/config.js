@@ -5,7 +5,11 @@
 module.exports = {
   logging: false,
 
-  intentMap: {},
+  intentMap: {
+    'AMAZON.StopIntent': 'END',
+    'AMAZON.YesIntent': 'YesIntent',
+    'AMAZON.NoIntent': 'NoIntent',
+  },
 
   db: {
     FileDb: {
