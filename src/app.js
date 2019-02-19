@@ -119,7 +119,10 @@ function addLanguageAttributesToQuestion(question) {
 
 app.setHandler({
   LAUNCH() {
-    return this.toIntent('MenuIntent');
+    let speech = this.t('welcome')[0];
+
+    this.followUpState('StudyState')
+      .ask(speech, speech);
   },
   MenuIntent() {
     let speech = this.t('menu')[0];
@@ -159,44 +162,6 @@ app.setHandler({
       return;
     }
     addCard.call(this);
-  },
-  StudyIntent() {
-    let speech = '';
-
-    // This might be a message saying that the requested set wasn't found
-    if (this.$session.$data.speechFromPreviousHandler) {
-      speech += this.$session.$data.speechFromPreviousHandler;
-    }
-
-    // Store an array of lowercase set names in the session
-    this.$session.$data.setNames = [];
-
-    // Will be used to list the set names in speech response to user
-    let setNamesWithCapitalization = [];
-
-    let setName;
-    let setNameLowercase;
-
-    for (let i = 1; i <= 3; i++) {
-
-      // Each data sheet is named by a simple number/index
-      setName = this.$cms[i]['name'];
-      setNameLowercase = setName.toLowerCase();
-
-      setNamesWithCapitalization.push(setName);
-      this.$session.$data.setNames.push(setNameLowercase);
-
-    }
-
-    const setNamesString = setNamesWithCapitalization.join(', ');
-
-    speech += this.$cms.t('StudyIntent', {
-      setNamesString: setNamesString,
-    })[0];
-
-    this.followUpState('ChoosingSetState')
-      .ask(speech, speech);
-
   },
   YesIntent() {
     this.tell(`This is the global Yes Intent`);
@@ -298,6 +263,45 @@ app.setHandler({
   //     return this.toIntent('AddCardIntent');
   //   }
   // }
+  StudyState: {
+    YesIntent() {
+      let speech = '';
+
+      // This might be a message saying that the requested set wasn't found
+      if (this.$session.$data.speechFromPreviousHandler) {
+        speech += this.$session.$data.speechFromPreviousHandler;
+      }
+
+      // Store an array of lowercase set names in the session
+      this.$session.$data.setNames = [];
+
+      // Will be used to list the set names in speech response to user
+      let setNamesWithCapitalization = [];
+
+      let setName;
+      let setNameLowercase;
+
+      for (let i = 1; i <= 3; i++) {
+
+        // Each data sheet is named by a simple number/index
+        setName = this.$cms[i]['name'];
+        setNameLowercase = setName.toLowerCase();
+
+        setNamesWithCapitalization.push(setName);
+        this.$session.$data.setNames.push(setNameLowercase);
+
+      }
+
+      const setNamesString = setNamesWithCapitalization.join(', ');
+
+      speech += this.$cms.t('StudyIntent', {
+        setNamesString: setNamesString,
+      })[0];
+
+      this.followUpState('ChoosingSetState')
+        .ask(speech, speech);
+    }
+  },
   ChoosingSetState: {
     ChooseSetIntent() {
       let speech;
@@ -351,18 +355,48 @@ app.setHandler({
     },
   },
   AnsweringQuestionState: {
-    Unhandled() {
+    AnswerQuestionIntent() {
       let speech;
-      let userResponse = this.$request.queryResult.queryText;
 
-      speech = this.t('response_confirmation', {
-        userResponse: userResponse,
+      let answer = this.$inputs['answer'].value;
+
+      let question = this.$session.$data.questions[this.$session.$data.questionIndex];
+
+      speech = this.t('AnswerQuestionIntent', {
+        correctAnswer: question.back,
       })[0];
 
-      this.followUpState('ConfirmingUserResponseState')
+      this.followUpState('ProceedingToNextCardState')
         .ask(speech,speech);
     }
   },
+  ProceedingToNextCardState: {
+    YesIntent() {
+      let speech;
+
+      // Get next question if there is one
+      this.$session.$data.questionIndex++;
+
+      // If a question exists for the new question index
+      if (this.$session.$data.questions[this.$session.$data.questionIndex]) {
+        return this.toStateIntent('AskingQuestionState', 'YesIntent');
+      } else {
+        // We've reached the end of the deck
+        speech = this.t('EndOfDeck')[0];
+
+        this.followUpState('EndOfDeckState')
+          .ask(speech, speech);
+      }
+    }
+  },
+  EndOfDeckState: {
+    YesIntent() {
+      return this.toStateIntent('StudyState', 'YesIntent');
+    },
+    NoIntent() {
+      return this.toIntent('END');
+    }
+  }
 });
 
 module.exports.app = app;
