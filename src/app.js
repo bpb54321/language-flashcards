@@ -72,6 +72,51 @@ function createNewDeck(deckName) {
     .ask(confirmation + ' ' + question, question);
 }
 
+function wrapStringWithLanguageSsml(inputString, locale) {
+  // A map between locale and voice name for that locale
+  const voices = {
+    'en-US': 'Ivy',
+    'fr-FR': 'Celine',
+  };
+
+  let wrappedString = `<voice name='${voices[locale]}'><lang xml:lang='${locale}'>`;
+  wrappedString += inputString;
+  wrappedString += `</lang></voice>`;
+
+  return wrappedString;
+}
+
+/**
+ * Necessary because if you start adding SSML tags inside the speech string,
+ * the entire speech string must be wrapped with <speak></speak> tags.
+ *
+ * @param inputString A speech string.
+ * @returns {string} The speech string wrapped with <speak></speak> tags.
+ */
+function wrapStringWithSpeakTags(inputString) {
+  return '<speak>' + inputString + '</speak>';
+}
+
+function addLanguageAttributesToQuestion(question) {
+
+  const deviceLocale = this.getLocale();
+  const questionFields = ['front', 'back'];
+
+  for (let questionField of questionFields) {
+
+    if (this.$session.$data.questions[questionField]) {
+
+      const questionFieldLocale = this.$session.$data.questions[questionField].locale;
+
+      if (questionFieldLocale && (questionFieldLocale !== deviceLocale)) {
+
+        question[questionField] =
+          wrapStringWithLanguageSsml(question[questionField], questionFieldLocale);
+      }
+    }
+  }
+}
+
 app.setHandler({
   LAUNCH() {
     return this.toIntent('MenuIntent');
@@ -292,10 +337,14 @@ app.setHandler({
 
       let question = this.$session.$data.questions[this.$session.$data.questionIndex];
 
+      addLanguageAttributesToQuestion.call(this,question);
+
       speech = this.t('question_introduction', {
         questionIndex: this.$session.$data.questionIndex,
         questionFront: question.front,
       })[0];
+
+      speech = wrapStringWithSpeakTags(speech);
 
       this.followUpState('AnsweringQuestionState')
         .ask(speech, speech);
@@ -309,8 +358,6 @@ app.setHandler({
       speech = this.t('response_confirmation', {
         userResponse: userResponse,
       })[0];
-
-
 
       this.followUpState('ConfirmingUserResponseState')
         .ask(speech,speech);
