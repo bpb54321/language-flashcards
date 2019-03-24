@@ -108,7 +108,7 @@ app.setHandler({
       for (let i = 1; i <= 3; i++) {
 
         // Each data sheet is named by a simple number/index
-        setName = this.$cms[i]['name'];
+        setName = this.$cms[i]['name'][this.getLocale()];
         setNameLowercase = setName.toLowerCase();
 
         setNamesWithCapitalization.push(setName);
