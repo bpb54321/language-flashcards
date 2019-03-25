@@ -197,6 +197,7 @@ app.setHandler({
       for (answerLocale in card) {
         if (answerLocale === deviceLocale) {
           cardAnswer = card[answerLocale];
+          break;
         }
       }
 
@@ -218,7 +219,7 @@ app.setHandler({
       this.$session.$data.cardIndex++;
 
       // If a question exists for the new question index
-      if (this.$session.$data.questions[this.$session.$data.cardIndex]) {
+      if (this.$session.$data.cards[this.$session.$data.cardIndex]) {
         return this.toStateIntent('AskingQuestionState', 'YesIntent');
       } else {
         // We've reached the end of the deck
