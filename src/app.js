@@ -22,10 +22,16 @@ app.use(
   new GoogleSheetsCMS()
 );
 
+/**
+ * Wrap a string with SSML which includes the voice and locale markup for speaking the string in a given language.
+ * @param inputString The string that you want to wrap in SSML.
+ * @param locale THe locale that you want the string to be spoken in.
+ * @returns {string} The string wrapped with the correct voice and locale markup.
+ */
 function wrapStringWithLanguageSsml(inputString, locale) {
   // A map between locale and voice name for that locale
   const voices = {
-    'en-US': 'Ivy',
+    'en-US': 'Joanna',
     'fr-FR': 'Celine',
   };
 
@@ -45,26 +51,6 @@ function wrapStringWithLanguageSsml(inputString, locale) {
  */
 function wrapStringWithSpeakTags(inputString) {
   return '<speak>' + inputString + '</speak>';
-}
-
-function addLanguageAttributesToQuestion(question) {
-
-  const deviceLocale = this.getLocale();
-  const questionFields = ['front', 'back'];
-
-  for (let questionField of questionFields) {
-
-    if (this.$session.$data.questions[questionField]) {
-
-      const questionFieldLocale = this.$session.$data.questions[questionField].locale;
-
-      if (questionFieldLocale && (questionFieldLocale !== deviceLocale)) {
-
-        question[questionField] =
-          wrapStringWithLanguageSsml(question[questionField], questionFieldLocale);
-      }
-    }
-  }
 }
 
 app.setHandler({
@@ -137,11 +123,11 @@ app.setHandler({
         const currentSetIndex =
           this.$session.$data.setNames.indexOf(setNameLowercase) + 1;
 
-        // Save the set's questions so we can ask them later
-        this.$session.$data.questions = this.$cms[currentSetIndex]['questions'];
-        this.$session.$data.questionIndex = 1;
+        // Save the set's cards so we can ask them later
+        this.$session.$data.cards = this.$cms[currentSetIndex]['cards'];
+        this.$session.$data.cardIndex = 1;
 
-        const setIntroductionPhrase = this.$cms[currentSetIndex].introduction;
+        const setIntroductionPhrase = this.$cms[currentSetIndex]['introduction'][this.getLocale()];
 
         speech = this.t('ChooseSetIntent', {
           setIntroductionPhrase: setIntroductionPhrase,
@@ -163,13 +149,28 @@ app.setHandler({
     YesIntent() {
       let speech;
 
-      let question = this.$session.$data.questions[this.$session.$data.questionIndex];
+      let card = this.$session.$data.cards[this.$session.$data.cardIndex];
 
-      addLanguageAttributesToQuestion.call(this,question);
+      const deviceLocale = this.getLocale();
+
+      /**
+       * Choose the side of the card that is not in the locale of the device. For example, if the device locale is
+       * en-US, then choose the side of the card that is in fr-FR. We assume that each card has two different locales
+       * (for example, one side of the card is in en-US, while the other is in fr-FR).
+       */
+      let questionLocale = '';
+      let question = '';
+      for (questionLocale in card) {
+        if (questionLocale !== deviceLocale) {
+          question = card[questionLocale];
+        }
+      }
+
+      const questionWrappedWithSsml = wrapStringWithLanguageSsml(question, questionLocale);
 
       speech = this.t('question_introduction', {
-        questionIndex: this.$session.$data.questionIndex,
-        questionFront: question.front,
+        cardIndex: this.$session.$data.cardIndex,
+        cardQuestion: questionWrappedWithSsml,
       })[0];
 
       speech = wrapStringWithSpeakTags(speech);
@@ -182,12 +183,27 @@ app.setHandler({
     AnswerQuestionIntent() {
       let speech;
 
-      let answer = this.$inputs['answer'].value;
+      let userAnswer = this.$inputs['answer'].value;
 
-      let question = this.$session.$data.questions[this.$session.$data.questionIndex];
+      let card = this.$session.$data.cards[this.$session.$data.cardIndex];
+
+      const deviceLocale = this.getLocale();
+
+      /**
+       * Choose the side of the card that is in the same locale as the device
+       */
+      let answerLocale = '';
+      let cardAnswer = '';
+      for (answerLocale in card) {
+        if (answerLocale === deviceLocale) {
+          cardAnswer = card[answerLocale];
+        }
+      }
+
+      const cardAnswerWrappedWithSsml = wrapStringWithLanguageSsml(cardAnswer, answerLocale);
 
       speech = this.t('AnswerQuestionIntent', {
-        correctAnswer: question.back,
+        correctAnswer: cardAnswerWrappedWithSsml,
       })[0];
 
       this.followUpState('ProceedingToNextCardState')
@@ -199,10 +215,10 @@ app.setHandler({
       let speech;
 
       // Get next question if there is one
-      this.$session.$data.questionIndex++;
+      this.$session.$data.cardIndex++;
 
       // If a question exists for the new question index
-      if (this.$session.$data.questions[this.$session.$data.questionIndex]) {
+      if (this.$session.$data.questions[this.$session.$data.cardIndex]) {
         return this.toStateIntent('AskingQuestionState', 'YesIntent');
       } else {
         // We've reached the end of the deck
