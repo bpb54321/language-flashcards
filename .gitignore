@@ -5,3 +5,9 @@ db/
 vendor/
 
 credentials\.ini
+
+bundle\.zip
+
+bundle/
+
+platforms/
