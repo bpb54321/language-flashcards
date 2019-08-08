@@ -55,7 +55,7 @@ function wrapStringWithSpeakTags(inputString) {
 
 app.setHandler({
   LAUNCH() {
-    let speech = this.t('welcome')[0];
+    let speech = this.t('welcome');
 
     this.followUpState('StudyState')
       .ask(speech, speech);
@@ -106,8 +106,8 @@ app.setHandler({
 
       speech += this.$cms.t('StudyIntent', {
         setNamesString: setNamesString,
-      })[0];
-
+      });
+      
       this.followUpState('ChoosingSetState')
         .ask(speech, speech);
     }
@@ -131,7 +131,7 @@ app.setHandler({
 
         speech = this.t('ChooseSetIntent', {
           setIntroductionPhrase: setIntroductionPhrase,
-        })[0];
+        });
 
         this.followUpState('AskingQuestionState')
           .ask(speech, speech);
@@ -171,7 +171,7 @@ app.setHandler({
       speech = this.t('question_introduction', {
         cardIndex: this.$session.$data.cardIndex,
         cardQuestion: questionWrappedWithSsml,
-      })[0];
+      });
 
       speech = wrapStringWithSpeakTags(speech);
 
@@ -205,11 +205,11 @@ app.setHandler({
 
       speech = this.t('AnswerQuestionIntent', {
         correctAnswer: cardAnswerWrappedWithSsml,
-      })[0];
+      });
 
       this.followUpState('ProceedingToNextCardState')
         .ask(speech,speech);
-    }
+    },
   },
   ProceedingToNextCardState: {
     YesIntent() {
@@ -223,7 +223,7 @@ app.setHandler({
         return this.toStateIntent('AskingQuestionState', 'YesIntent');
       } else {
         // We've reached the end of the deck
-        speech = this.t('EndOfDeck')[0];
+        speech = this.t('EndOfDeck');
 
         this.followUpState('EndOfDeckState')
           .ask(speech, speech);
