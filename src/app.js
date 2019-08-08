@@ -183,7 +183,7 @@ app.setHandler({
   },
   AnsweringQuestionState: {
     AnswerQuestionIntent() {
-      let speech;
+      let speech = '';
 
       let userAnswer = this.$inputs['answer'].value;
 
@@ -205,7 +205,11 @@ app.setHandler({
 
       const cardAnswerWrappedWithSsml = wrapStringWithLanguageSsml(cardAnswer, answerLocale);
 
-      speech = this.t('AnswerQuestionIntent', {
+      speech += this.t('your_response_was', {
+        userAnswer: userAnswer,
+      });
+
+      speech += ' ' + this.t('correct_answer', {
         correctAnswer: cardAnswerWrappedWithSsml,
       });
 
