@@ -9,3 +9,5 @@ credentials\.ini
 bundle\.zip
 
 bundle/
+
+\.DS_Store
