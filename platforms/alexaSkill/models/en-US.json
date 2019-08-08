@@ -1,113 +1,45 @@
 {
-  "interactionModel": {
-    "languageModel": {
-      "invocationName": "language flashcards",
-      "intents": [
-        {
-          "name": "AMAZON.FallbackIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.CancelIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.HelpIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.StopIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.NavigateHomeIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.YesIntent",
-          "samples": []
-        },
-        {
-          "name": "ChooseSetIntent",
-          "slots": [
-            {
-              "name": "setName",
-              "type": "AMAZON.SearchQuery"
-            }
-          ],
-          "samples": [
-            "{setName} set"
-          ]
-        },
-        {
-          "name": "AnswerQuestionIntent",
-          "slots": [
-            {
-              "name": "answer",
-              "type": "AMAZON.SearchQuery",
-              "samples": [
-                "The answer is {answer}"
-              ]
-            }
-          ],
-          "samples": [
-            "The answer is {answer}"
-          ]
-        }
-      ],
-      "types": []
-    },
-    "dialog": {
-      "intents": [
-        {
-          "name": "AnswerQuestionIntent",
-          "confirmationRequired": false,
-          "prompts": {},
-          "slots": [
-            {
-              "name": "answer",
-              "type": "AMAZON.SearchQuery",
-              "elicitationRequired": true,
-              "confirmationRequired": true,
-              "prompts": {
-                "confirmation": "Confirm.Slot.1497079158823.310959193590",
-                "elicitation": "Elicit.Slot.1497079158823.310959193590"
-              }
-            }
-          ]
-        }
-      ],
-      "delegationStrategy": "ALWAYS"
-    },
-    "prompts": [
-      {
-        "id": "Confirm.Intent.1497079158823",
-        "variations": [
-          {
-            "type": "PlainText",
-            "value": "I heard you say {answer} . Did I hear that right?"
-          }
-        ]
-      },
-      {
-        "id": "Elicit.Slot.1497079158823.310959193590",
-        "variations": [
-          {
-            "type": "PlainText",
-            "value": "Sorry, I didn't hear the answer. What is the answer to the question?"
-          }
-        ]
-      },
-      {
-        "id": "Confirm.Slot.1497079158823.310959193590",
-        "variations": [
-          {
-            "type": "PlainText",
-            "value": "I heard you say {answer} . Did I hear you correctly?"
-          }
-        ]
-      }
-    ]
-  },
-  "version": "2"
+	"interactionModel": {
+		"languageModel": {
+			"invocationName": "my test app",
+			"types": [],
+			"intents": [
+				{
+					"name": "HelloWorldIntent",
+					"samples": [
+						"hello",
+						"say hello",
+						"say hello world"
+					]
+				},
+				{
+					"name": "MyNameIsIntent",
+					"samples": [
+						"{name}",
+						"my name is {name}",
+						"i am {name}",
+						"you can call me {name}"
+					],
+					"slots": [
+						{
+							"name": "name",
+							"type": "AMAZON.US_FIRST_NAME"
+						}
+					]
+				},
+				{
+					"name": "AMAZON.CancelIntent",
+					"samples": []
+				},
+				{
+					"name": "AMAZON.HelpIntent",
+					"samples": []
+				},
+				{
+					"name": "AMAZON.StopIntent",
+					"samples": []
+				}
+			]
+		}
+	}
 }

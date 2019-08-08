@@ -73,6 +73,16 @@ app.setHandler({
   END() {
     this.tell(this.t('goodbye'));
   },
+  HelpIntent() {
+    let speech = '';
+    speech += ' ' + this.$cms.t('help');
+  },
+  CancelIntent() {
+    return this.toStatelessIntent('END');
+  },
+  NavigateHomeIntent() {
+    return this.toStateIntent('StudyState', 'YesIntent');
+  },
   StudyState: {
     YesIntent() {
       let speech = '';

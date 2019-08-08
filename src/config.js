@@ -9,6 +9,9 @@ module.exports = {
     'AMAZON.StopIntent': 'END',
     'AMAZON.YesIntent': 'YesIntent',
     'AMAZON.NoIntent': 'NoIntent',
+    'AMAZON.HelpIntent': 'HelpIntent',
+    'AMAZON.CancelIntent': 'CancelIntent',
+    'AMAZON.NavigateHomeIntent': 'NavigateHomeIntent',
   },
 
   db: {
