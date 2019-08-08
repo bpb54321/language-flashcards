@@ -71,7 +71,7 @@ app.setHandler({
     this.tell(speech);
   },
   END() {
-    this.tell('Goodbye!');
+    this.tell(this.t('goodbye'));
   },
   StudyState: {
     YesIntent() {
