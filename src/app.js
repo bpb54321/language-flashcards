@@ -71,7 +71,7 @@ app.setHandler({
     this.tell(speech);
   },
   END() {
-    this.tell('Goodbye!');
+    this.tell(this.t('goodbye'));
   },
   StudyState: {
     YesIntent() {
@@ -107,7 +107,7 @@ app.setHandler({
       speech += this.$cms.t('StudyIntent', {
         setNamesString: setNamesString,
       });
-      
+
       this.followUpState('ChoosingSetState')
         .ask(speech, speech);
     }
@@ -173,6 +173,8 @@ app.setHandler({
         cardQuestion: questionWrappedWithSsml,
       });
 
+      speech += ' ' + this.t('answer_preface_reminder');
+
       speech = wrapStringWithSpeakTags(speech);
 
       this.followUpState('AnsweringQuestionState')
@@ -181,7 +183,7 @@ app.setHandler({
   },
   AnsweringQuestionState: {
     AnswerQuestionIntent() {
-      let speech;
+      let speech = '';
 
       let userAnswer = this.$inputs['answer'].value;
 
@@ -203,7 +205,11 @@ app.setHandler({
 
       const cardAnswerWrappedWithSsml = wrapStringWithLanguageSsml(cardAnswer, answerLocale);
 
-      speech = this.t('AnswerQuestionIntent', {
+      speech += this.t('your_response_was', {
+        userAnswer: userAnswer,
+      });
+
+      speech += ' ' + this.t('correct_answer', {
         correctAnswer: cardAnswerWrappedWithSsml,
       });
 
