@@ -1,0 +1,24 @@
+{
+  "manifest": {
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "uri": "https://webhook.jovo.cloud/4a3c8096-d2cc-467c-bfe1-1cdc1d36d727",
+          "sslCertificateType": "Wildcard"
+        },
+        "interfaces": []
+      }
+    },
+    "manifestVersion": "1.0",
+    "publishingInformation": {
+      "locales": {
+        "en-US": {
+          "name": "Language Flashcards"
+        },
+        "fr-FR": {
+          "name": "Cartes Mémoires"
+        }
+      }
+    }
+  }
+}
