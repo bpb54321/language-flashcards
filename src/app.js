@@ -76,6 +76,8 @@ app.setHandler({
   HelpIntent() {
     let speech = '';
     speech += ' ' + this.$cms.t('help');
+    speech += ' ' + this.$cms.t('welcome');
+    this.ask(speech, speech);
   },
   CancelIntent() {
     return this.toStatelessIntent('END');
