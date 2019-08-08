@@ -107,7 +107,7 @@ app.setHandler({
       speech += this.$cms.t('StudyIntent', {
         setNamesString: setNamesString,
       });
-      
+
       this.followUpState('ChoosingSetState')
         .ask(speech, speech);
     }
@@ -172,6 +172,8 @@ app.setHandler({
         cardIndex: this.$session.$data.cardIndex,
         cardQuestion: questionWrappedWithSsml,
       });
+
+      speech += ' ' + this.t('answer_preface_reminder');
 
       speech = wrapStringWithSpeakTags(speech);
 
