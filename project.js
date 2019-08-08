@@ -6,11 +6,8 @@ module.exports = {
     alexaSkill: {
        nlu: 'alexa',
     },
-    googleAction: {
-       nlu: 'dialogflow',
-    },
     defaultStage: 'local',
-    states: {
+    stages: {
       local: {
         endpoint: '${JOVO_WEBHOOK_URL}',
       },
@@ -19,4 +16,3 @@ module.exports = {
       },
     }
 };
- 
