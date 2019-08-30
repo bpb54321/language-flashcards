@@ -57,7 +57,7 @@ app.setHandler({
   LAUNCH() {
     let speech = this.t('welcome');
 
-    this.followUpState('StudyState')
+    this.followUpState('DecideWhetherToStudyState')
       .ask(speech, speech);
   },
   YesIntent() {
@@ -83,9 +83,9 @@ app.setHandler({
     return this.toStatelessIntent('END');
   },
   NavigateHomeIntent() {
-    return this.toStateIntent('StudyState', 'YesIntent');
+    return this.toStateIntent('DecideWhetherToStudyState', 'YesIntent');
   },
-  StudyState: {
+  DecideWhetherToStudyState: {
     /**
      * @this object
      */
@@ -125,6 +125,10 @@ app.setHandler({
 
       this.followUpState('ChoosingSetState')
         .ask(speech, speech);
+    },
+    NoIntent() {
+      let speech = this.$cms.t(`sorry-you-dont-want-to-play`);
+      this.tell(speech);
     }
   },
   ChoosingSetState: {
@@ -253,7 +257,7 @@ app.setHandler({
   },
   EndOfDeckState: {
     YesIntent() {
-      return this.toStateIntent('StudyState', 'YesIntent');
+      return this.toStateIntent('DecideWhetherToStudyState', 'YesIntent');
     },
     NoIntent() {
       return this.toStatelessIntent('END');
