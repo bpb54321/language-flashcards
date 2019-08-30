@@ -12,6 +12,7 @@
     "jovo-plugin-debugger": "^2.2.13"
   },
   "devDependencies": {
+    "@types/jest": "^24.0.18",
     "gulp": "^4.0.2",
     "gulp-install": "^1.1.0",
     "gulp-run-command": "0.0.9",
