@@ -1,29 +1,30 @@
 {
 	"interactionModel": {
 		"languageModel": {
-			"invocationName": "my test app",
+			"invocationName": "language flashcards",
 			"types": [],
 			"intents": [
 				{
-					"name": "HelloWorldIntent",
+					"name": "ChooseSetIntent",
 					"samples": [
-						"hello",
-						"say hello",
-						"say hello world"
-					]
-				},
-				{
-					"name": "MyNameIsIntent",
-					"samples": [
-						"{name}",
-						"my name is {name}",
-						"i am {name}",
-						"you can call me {name}"
+						"{setName} set"
 					],
 					"slots": [
 						{
-							"name": "name",
-							"type": "AMAZON.US_FIRST_NAME"
+							"name": "setName",
+							"type": "AMAZON.SearchQuery"
+						}
+					]
+				},
+				{
+					"name": "AnswerQuestionIntent",
+					"samples": [
+						"the answer is {answer}"
+					],
+					"slots": [
+						{
+							"name": "answer",
+							"type": "AMAZON.SearchQuery"
 						}
 					]
 				},
@@ -37,6 +38,18 @@
 				},
 				{
 					"name": "AMAZON.StopIntent",
+					"samples": []
+				},
+				{
+					"name": "AMAZON.NavigateHomeIntent",
+					"samples": []
+				},
+				{
+					"name": "AMAZON.YesIntent",
+					"samples": []
+				},
+				{
+					"name": "AMAZON.NoIntent",
 					"samples": []
 				}
 			]
