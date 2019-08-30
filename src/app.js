@@ -86,6 +86,9 @@ app.setHandler({
     return this.toStateIntent('StudyState', 'YesIntent');
   },
   StudyState: {
+    /**
+     * @this object
+     */
     YesIntent() {
       let speech = '';
 
