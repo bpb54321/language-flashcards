@@ -4,13 +4,15 @@
 		{
 			"name": "ChooseSetIntent",
 			"phrases": [
-				"{setName} set"
+				"pack number {setNumber}",
+				"number {setNumber}",
+				"{setNumber}"
 			],
 			"inputs": [
 				{
 					"name": "setName",
 					"type": {
-						"alexa": "AMAZON.SearchQuery"
+						"alexa": "AMAZON.NUMBER"
 					}
 				}
 			]
