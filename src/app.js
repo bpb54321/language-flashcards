@@ -60,12 +60,6 @@ app.setHandler({
     this.followUpState('DecideWhetherToStudyState')
       .ask(speech, speech);
   },
-  YesIntent() {
-    this.tell(`This is the global Yes Intent`);
-  },
-  NoIntent() {
-    this.tell(`This is the global No Intent`);
-  },
   Unhandled() {
     let speech = `You have hit the global unhandled state`;
     this.tell(speech);
@@ -134,12 +128,11 @@ app.setHandler({
     ChooseSetIntent() {
       let speech;
       let setName = this.$inputs['setName'].value;
-      let setNameLowercase = setName.toLowerCase();
 
-      if (this.$session.$data.setNames.includes(setNameLowercase)) {
+      if (this.$session.$data.setNames.includes(setName)) {
 
         const currentSetIndex =
-          this.$session.$data.setNames.indexOf(setNameLowercase) + 1;
+          this.$session.$data.setNames.indexOf(setName) + 1;
 
         // Save the set's cards so we can ask them later
         this.$session.$data.cards = this.$cms[currentSetIndex]['cards'];
