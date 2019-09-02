@@ -74,10 +74,9 @@ app.setHandler({
     this.tell(this.t('goodbye'));
   },
   HelpIntent() {
-    let speech = '';
-    speech += ' ' + this.$cms.t('help');
-    speech += ' ' + this.$cms.t('welcome');
-    this.ask(speech, speech);
+    const speech = this.$cms.t('help');
+    this.followUpState('DecideWhetherToStudyState')
+      .ask(speech, speech);
   },
   CancelIntent() {
     return this.toStatelessIntent('END');
