@@ -93,24 +93,21 @@ app.setHandler({
       // Store an array of lowercase set names in the session
       this.$session.$data.setNames = [];
 
-      // Will be used to list the set names in speech response to user
-      let setNamesWithCapitalization = [];
-
       let setName;
-      let setNameLowercase;
 
       for (let i = 1; i <= 3; i++) {
 
         // Each data sheet is named by a simple number/index
         setName = this.$cms[i]['name'][this.getLocale()];
-        setNameLowercase = setName.toLowerCase();
 
-        setNamesWithCapitalization.push(setName);
-        this.$session.$data.setNames.push(setNameLowercase);
+        // Append a number in front of the set name
+        setName = `${i}. ` + setName;
+
+        this.$session.$data.setNames.push(setName);
 
       }
 
-      const setNamesString = setNamesWithCapitalization.join(', ');
+      const setNamesString = this.$session.$data.setNames.join(', ');
 
       speech += this.$cms.t('StudyIntent', {
         setNamesString: setNamesString,
