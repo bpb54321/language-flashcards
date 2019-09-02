@@ -10,7 +10,7 @@
 			],
 			"inputs": [
 				{
-					"name": "setName",
+					"name": "setNumber",
 					"type": {
 						"alexa": "AMAZON.NUMBER"
 					}
