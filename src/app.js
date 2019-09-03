@@ -124,7 +124,7 @@ app.setHandler({
       let speech;
       let setNumber = this.$inputs[`setNumber`].value;
 
-      if (setNumber <= this.$session.$data.setNames.length) {
+      if ((setNumber <= this.$session.$data.setNames.length) && (setNumber > 0)) {
 
         // Save the set's cards so we can ask them later
         this.$session.$data.cards = this.$cms[setNumber][`cards`];

@@ -43,5 +43,24 @@ describe(`ChoosingSetState` , () => {
     expect(response.getSessionData()).toHaveProperty(`_JOVO_STATE_`, `ChoosingSetState`);
 
   });
+
+  test(`should tell the user the set number is invalid and ask again for the set number when the user provides a set number that is less than 1`, async () => {
+    const conversation = testSuite.conversation({ locale: `keys-only` });
+
+    const setNames = [`set 1`, `set 2`, `set 3`];
+
+    const request = await testSuite.requestBuilder.intent(`ChooseSetIntent`, {
+      setNumber: `0`,
+    });
+
+    request.addSessionData(`setNames`, setNames);
+    request.setState(`ChoosingSetState`);
+
+    const response = await conversation.send(request);
+
+    expect(response.getSpeech()).toBe(`you-have-selected-an-invalid-set-number`);
+    expect(response.getSessionData()).toHaveProperty(`_JOVO_STATE_`, `ChoosingSetState`);
+
+  });
 });
 
