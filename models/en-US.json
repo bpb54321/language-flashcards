@@ -20,7 +20,7 @@
 		{
 			"name": "AnswerQuestionIntent",
 			"phrases": [
-				"the answer is {answer}"
+				"the translation is {answer}"
 			],
 			"inputs": [
 				{
