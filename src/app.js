@@ -217,6 +217,18 @@ app.setHandler({
       this.followUpState('ProceedingToNextCardState')
         .ask(speech,speech);
     },
+    HelpIntent() {
+      return this.toStatelessIntent(`HelpIntent`);
+    },
+    END() {
+      return this.toStatelessIntent(`END`);
+    },
+    CancelIntent() {
+      return this.toStatelessIntent(`CancelIntent`);
+    },
+    NavigateHomeIntent() {
+      return this.toStatelessIntent(`NavigateHomeIntent`);
+    },
     Unhandled() {
       const speech = this.$cms.t(`reminder-to-preface-answer`);
       this.followUpState(`AnsweringQuestionState`)

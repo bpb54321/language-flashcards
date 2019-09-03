@@ -16,5 +16,49 @@ describe(`AnsweringQuestionState` , () => {
     expect(response.getSpeech()).toBe(`reminder-to-preface-answer`);
     expect(response.hasState(`AnsweringQuestionState`)).toBe(true);
   });
+
+  test(`the skill should route you to the global HelpIntent if you ask for help while in AnsweringQuestionState`, async () => {
+    const conversation = testSuite.conversation({ locale: `keys-only` });
+    const request = await testSuite.requestBuilder.intent(`HelpIntent`);
+    request.setState(`AnsweringQuestionState`);
+
+    const response = await conversation.send(request);
+
+    expect(response.getSpeech()).toBe(`help`);
+    expect(response.hasState(`DecideWhetherToStudyState`)).toBe(true);
+  });
+
+  test(`the skill should route you to the global END if you trigger it while in AnsweringQuestionState`, async () => {
+    const conversation = testSuite.conversation({ locale: `keys-only` });
+    const request = await testSuite.requestBuilder.intent(`END`);
+    request.setState(`AnsweringQuestionState`);
+
+    const response = await conversation.send(request);
+
+    expect(response.getSpeech()).toBe(`goodbye`);
+    expect(response.hasSessionEnded()).toBe(true);
+  });
+
+  test(`the skill should route you to the global CancelIntent if you trigger it while in AnsweringQuestionState`, async () => {
+    const conversation = testSuite.conversation({ locale: `keys-only` });
+    const request = await testSuite.requestBuilder.intent(`CancelIntent`);
+    request.setState(`AnsweringQuestionState`);
+
+    const response = await conversation.send(request);
+
+    expect(response.getSpeech()).toBe(`goodbye`);
+    expect(response.hasSessionEnded()).toBe(true);
+  });
+
+  test(`the skill should route you to the global NavigateHomeIntent if you trigger it while in AnsweringQuestionState`, async () => {
+    const conversation = testSuite.conversation({ locale: `keys-only` });
+    const request = await testSuite.requestBuilder.intent(`NavigateHomeIntent`);
+    request.setState(`AnsweringQuestionState`);
+
+    const response = await conversation.send(request);
+
+    expect(response.getSpeech()).toBe(`StudyIntent`);
+    expect(response.hasState(`ChoosingSetState`)).toBe(true);
+  });
 });
 
