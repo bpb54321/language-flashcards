@@ -121,7 +121,6 @@ app.setHandler({
   },
   ChoosingSetState: {
     ChooseSetIntent() {
-      let speech;
       let setNumber = this.$inputs[`setNumber`].value;
 
       if ((setNumber <= this.$session.$data.setNames.length) && (setNumber > 0)) {
@@ -130,11 +129,7 @@ app.setHandler({
         this.$session.$data.cards = this.$cms[setNumber][`cards`];
         this.$session.$data.cardIndex = 1;
 
-        const setIntroductionPhrase = this.$cms[setNumber][`introduction`][this.getLocale()];
-
-        speech = this.t(`introduce-set`, {
-          setIntroductionPhrase: setIntroductionPhrase,
-        });
+        const speech = this.t(`introduce-set`);
 
         this.followUpState(`AskingQuestionState`)
           .ask(speech, speech);
