@@ -107,10 +107,8 @@ app.setHandler({
 
       }
 
-      const setNamesString = this.$session.$data.setNames.join(', ');
-
       speech += this.$cms.t('StudyIntent', {
-        setNamesString: setNamesString,
+        setNamesString: this.$session.$data.setNames.join(', '),
       });
 
       this.followUpState('ChoosingSetState')
@@ -143,7 +141,9 @@ app.setHandler({
 
       } else {
 
-        const speech = this.t(`you-have-selected-a-set-number-greater-than-the-number-of-sets`);
+        const speech = this.t(`you-have-selected-an-invalid-set-number`, {
+          setNamesString: this.$session.$data.setNames.join(', '),
+        });
 
         this.followUpState(`ChoosingSetState`)
           .ask(speech, speech);
