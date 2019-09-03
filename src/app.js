@@ -124,20 +124,17 @@ app.setHandler({
   ChoosingSetState: {
     ChooseSetIntent() {
       let speech;
-      let setName = this.$inputs['setName'].value;
+      let setNumber = this.$inputs['setNumber'].value;
 
-      if (this.$session.$data.setNames.includes(setName)) {
-
-        const currentSetIndex =
-          this.$session.$data.setNames.indexOf(setName) + 1;
+      if (setNumber <= this.$session.$data.setNames.length) {
 
         // Save the set's cards so we can ask them later
-        this.$session.$data.cards = this.$cms[currentSetIndex]['cards'];
+        this.$session.$data.cards = this.$cms[setNumber]['cards'];
         this.$session.$data.cardIndex = 1;
 
-        const setIntroductionPhrase = this.$cms[currentSetIndex]['introduction'][this.getLocale()];
+        const setIntroductionPhrase = this.$cms[setNumber]['introduction'][this.getLocale()];
 
-        speech = this.t('ChooseSetIntent', {
+        speech = this.t('introduce-set', {
           setIntroductionPhrase: setIntroductionPhrase,
         });
 
@@ -147,7 +144,7 @@ app.setHandler({
       } else {
 
         this.$session.$data.speechFromPreviousHandler = `Sorry, I couldn't find` +
-          `a set called ${setName}.\n`;
+          `a set called ${setNumber}.\n`;
         return this.toStatelessIntent('StudyIntent');
 
       }

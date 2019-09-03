@@ -12,7 +12,7 @@ describe(`ChoosingSetState` , () => {
     const setNames = [`set 1`, `set 2`, `set 3`];
 
     const request = await testSuite.requestBuilder.intent(`ChooseSetIntent`, {
-      setName: setNames[0],
+      setNumber: `1`,
     });
 
     request.addSessionData(`setNames`, setNames);
@@ -20,7 +20,7 @@ describe(`ChoosingSetState` , () => {
 
     const response = await conversation.send(request);
 
-    expect(response.getSpeech()).toBe(`ChooseSetIntent`);
+    expect(response.getSpeech()).toBe(`introduce-set`);
     expect(response.getSessionData()).toHaveProperty(`_JOVO_STATE_`, `AskingQuestionState`);
 
   });
