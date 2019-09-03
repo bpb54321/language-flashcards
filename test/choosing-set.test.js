@@ -24,5 +24,24 @@ describe(`ChoosingSetState` , () => {
     expect(response.getSessionData()).toHaveProperty(`_JOVO_STATE_`, `AskingQuestionState`);
 
   });
+
+  test(`should tell the user the set number is invalid and ask again for the set number when the user provides a set number that is greater than the number of sets`, async () => {
+    const conversation = testSuite.conversation({ locale: `keys-only` });
+
+    const setNames = [`set 1`, `set 2`, `set 3`];
+
+    const request = await testSuite.requestBuilder.intent(`ChooseSetIntent`, {
+      setNumber: `4`,
+    });
+
+    request.addSessionData(`setNames`, setNames);
+    request.setState(`ChoosingSetState`);
+
+    const response = await conversation.send(request);
+
+    expect(response.getSpeech()).toBe(`you-have-selected-a-set-number-greater-than-the-number-of-sets`);
+    expect(response.getSessionData()).toHaveProperty(`_JOVO_STATE_`, `ChoosingSetState`);
+
+  });
 });
 
