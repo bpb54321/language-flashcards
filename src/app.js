@@ -124,29 +124,29 @@ app.setHandler({
   ChoosingSetState: {
     ChooseSetIntent() {
       let speech;
-      let setNumber = this.$inputs['setNumber'].value;
+      let setNumber = this.$inputs[`setNumber`].value;
 
       if (setNumber <= this.$session.$data.setNames.length) {
 
         // Save the set's cards so we can ask them later
-        this.$session.$data.cards = this.$cms[setNumber]['cards'];
+        this.$session.$data.cards = this.$cms[setNumber][`cards`];
         this.$session.$data.cardIndex = 1;
 
-        const setIntroductionPhrase = this.$cms[setNumber]['introduction'][this.getLocale()];
+        const setIntroductionPhrase = this.$cms[setNumber][`introduction`][this.getLocale()];
 
-        speech = this.t('introduce-set', {
+        speech = this.t(`introduce-set`, {
           setIntroductionPhrase: setIntroductionPhrase,
         });
 
-        this.followUpState('AskingQuestionState')
+        this.followUpState(`AskingQuestionState`)
           .ask(speech, speech);
 
       } else {
 
-        this.$session.$data.speechFromPreviousHandler = `Sorry, I couldn't find` +
-          `a set called ${setNumber}.\n`;
-        return this.toStatelessIntent('StudyIntent');
+        const speech = this.t(`you-have-selected-a-set-number-greater-than-the-number-of-sets`);
 
+        this.followUpState(`ChoosingSetState`)
+          .ask(speech, speech);
       }
     }
   },
