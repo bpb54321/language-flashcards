@@ -61,8 +61,9 @@ app.setHandler({
       .ask(speech, speech);
   },
   Unhandled() {
-    let speech = `You have hit the global unhandled state`;
-    this.tell(speech);
+    const speech = this.$cms.t(`unhandled`);
+    this.followUpState('DecideWhetherToStudyState')
+      .ask(speech, speech);
   },
   END() {
     this.tell(this.t('goodbye'));
