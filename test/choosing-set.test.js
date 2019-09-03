@@ -39,7 +39,7 @@ describe(`ChoosingSetState` , () => {
 
     const response = await conversation.send(request);
 
-    expect(response.getSpeech()).toBe(`you-have-selected-a-set-number-greater-than-the-number-of-sets`);
+    expect(response.getSpeech()).toBe(`you-have-selected-an-invalid-set-number`);
     expect(response.getSessionData()).toHaveProperty(`_JOVO_STATE_`, `ChoosingSetState`);
 
   });
