@@ -10,10 +10,22 @@ describe(`AnsweringQuestionState` , () => {
     const conversation = testSuite.conversation({ locale: `keys-only` });
     const request = await testSuite.requestBuilder.intent(`UnhandledIntent`);
     request.setState(`AnsweringQuestionState`);
+    request.addSessionData(`cards`, [
+        {
+          "en-US": `Card 1 phrase`,
+          "fr-FR": `phrase pour carte 1`,
+        },
+        {
+          "en-US": `Card 2 phrase`,
+          "fr-FR": `phrase pour carte 2`,
+        },
+      ]
+    );
+    request.addSessionData(`cardIndex`, 2);
 
     const response = await conversation.send(request);
 
-    expect(response.getSpeech()).toBe(`reminder-to-preface-answer`);
+    expect(response.getSpeech()).toBe(`reminder-to-preface-answer question_introduction answer_preface_reminder`);
     expect(response.hasState(`AnsweringQuestionState`)).toBe(true);
   });
 

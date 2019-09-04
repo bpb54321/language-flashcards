@@ -148,7 +148,12 @@ app.setHandler({
   },
   AskingQuestionState: {
     YesIntent() {
-      let speech;
+      let speech = ``;
+
+      if (this.$session.$data.speechFromPreviousHandler) {
+        speech += this.$session.$data.speechFromPreviousHandler;
+        this.$session.$data.speechFromPreviousHandler = null;
+      }
 
       let card = this.$session.$data.cards[this.$session.$data.cardIndex];
 
@@ -169,16 +174,16 @@ app.setHandler({
 
       const questionWrappedWithSsml = wrapStringWithLanguageSsml(question, questionLocale);
 
-      speech = this.t('question_introduction', {
+      speech += ` ` + this.t(`question_introduction`, {
         cardIndex: this.$session.$data.cardIndex,
         cardQuestion: questionWrappedWithSsml,
       });
 
-      speech += ' ' + this.t('answer_preface_reminder');
+      speech += ` ` + this.t(`answer_preface_reminder`);
 
       speech = wrapStringWithSpeakTags(speech);
 
-      this.followUpState('AnsweringQuestionState')
+      this.followUpState(`AnsweringQuestionState`)
         .ask(speech, speech);
     },
   },
@@ -230,9 +235,8 @@ app.setHandler({
       return this.toStatelessIntent(`NavigateHomeIntent`);
     },
     Unhandled() {
-      const speech = this.$cms.t(`reminder-to-preface-answer`);
-      this.followUpState(`AnsweringQuestionState`)
-        .ask(speech, speech);
+      this.$session.$data.speechFromPreviousHandler = this.$cms.t(`reminder-to-preface-answer`);
+      return this.toStateIntent(`AskingQuestionState`, `YesIntent`);
     }
   },
   ProceedingToNextCardState: {
