@@ -108,7 +108,7 @@ app.setHandler({
 
       }
 
-      speech += this.$cms.t('StudyIntent', {
+      speech += this.$cms.t('choose-a-set-by-saying-its-number', {
         setNamesString: this.$session.$data.setNames.join(', '),
       });
 
@@ -257,7 +257,10 @@ app.setHandler({
         this.followUpState('EndOfDeckState')
           .ask(speech, speech);
       }
-    }
+    },
+    NoIntent() {
+      return this.toStatelessIntent(`NavigateHomeIntent`);
+    },
   },
   EndOfDeckState: {
     YesIntent() {

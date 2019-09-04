@@ -69,7 +69,7 @@ describe(`AnsweringQuestionState` , () => {
 
     const response = await conversation.send(request);
 
-    expect(response.getSpeech()).toBe(`StudyIntent`);
+    expect(response.getSpeech()).toBe(`choose-a-set-by-saying-its-number`);
     expect(response.hasState(`ChoosingSetState`)).toBe(true);
   });
 });
