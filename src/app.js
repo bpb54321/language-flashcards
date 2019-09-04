@@ -57,35 +57,32 @@ app.setHandler({
   LAUNCH() {
     let speech = this.t('welcome');
 
-    this.followUpState('StudyState')
+    this.followUpState('DecideWhetherToStudyState')
       .ask(speech, speech);
   },
-  YesIntent() {
-    this.tell(`This is the global Yes Intent`);
-  },
-  NoIntent() {
-    this.tell(`This is the global No Intent`);
-  },
   Unhandled() {
-    let speech = `You have hit the global unhandled state`;
-    this.tell(speech);
+    const speech = this.$cms.t(`unhandled`);
+    this.followUpState('DecideWhetherToStudyState')
+      .ask(speech, speech);
   },
   END() {
     this.tell(this.t('goodbye'));
   },
   HelpIntent() {
-    let speech = '';
-    speech += ' ' + this.$cms.t('help');
-    speech += ' ' + this.$cms.t('welcome');
-    this.ask(speech, speech);
+    const speech = this.$cms.t('help');
+    this.followUpState('DecideWhetherToStudyState')
+      .ask(speech, speech);
   },
   CancelIntent() {
     return this.toStatelessIntent('END');
   },
   NavigateHomeIntent() {
-    return this.toStateIntent('StudyState', 'YesIntent');
+    return this.toStateIntent('DecideWhetherToStudyState', 'YesIntent');
   },
-  StudyState: {
+  DecideWhetherToStudyState: {
+    /**
+     * @this object
+     */
     YesIntent() {
       let speech = '';
 
@@ -97,69 +94,66 @@ app.setHandler({
       // Store an array of lowercase set names in the session
       this.$session.$data.setNames = [];
 
-      // Will be used to list the set names in speech response to user
-      let setNamesWithCapitalization = [];
-
       let setName;
-      let setNameLowercase;
 
       for (let i = 1; i <= 3; i++) {
 
         // Each data sheet is named by a simple number/index
         setName = this.$cms[i]['name'][this.getLocale()];
-        setNameLowercase = setName.toLowerCase();
 
-        setNamesWithCapitalization.push(setName);
-        this.$session.$data.setNames.push(setNameLowercase);
+        // Append a number in front of the set name
+        setName = `${i}. ` + setName;
+
+        this.$session.$data.setNames.push(setName);
 
       }
 
-      const setNamesString = setNamesWithCapitalization.join(', ');
-
-      speech += this.$cms.t('StudyIntent', {
-        setNamesString: setNamesString,
+      speech += this.$cms.t('choose-a-set-by-saying-its-number', {
+        setNamesString: this.$session.$data.setNames.join(', '),
       });
 
       this.followUpState('ChoosingSetState')
         .ask(speech, speech);
+    },
+    NoIntent() {
+      let speech = this.$cms.t(`sorry-you-dont-want-to-play`);
+      this.tell(speech);
     }
   },
   ChoosingSetState: {
     ChooseSetIntent() {
-      let speech;
-      let setName = this.$inputs['setName'].value;
-      let setNameLowercase = setName.toLowerCase();
+      let setNumber = this.$inputs[`setNumber`].value;
 
-      if (this.$session.$data.setNames.includes(setNameLowercase)) {
-
-        const currentSetIndex =
-          this.$session.$data.setNames.indexOf(setNameLowercase) + 1;
+      if ((setNumber <= this.$session.$data.setNames.length) && (setNumber > 0)) {
 
         // Save the set's cards so we can ask them later
-        this.$session.$data.cards = this.$cms[currentSetIndex]['cards'];
+        this.$session.$data.cards = this.$cms[setNumber][`cards`];
         this.$session.$data.cardIndex = 1;
 
-        const setIntroductionPhrase = this.$cms[currentSetIndex]['introduction'][this.getLocale()];
+        const speech = this.t(`introduce-set`);
 
-        speech = this.t('ChooseSetIntent', {
-          setIntroductionPhrase: setIntroductionPhrase,
-        });
-
-        this.followUpState('AskingQuestionState')
+        this.followUpState(`AskingQuestionState`)
           .ask(speech, speech);
 
       } else {
 
-        this.$session.$data.speechFromPreviousHandler = `Sorry, I couldn't find` +
-          `a set called ${setName}.\n`;
-        return this.toStatelessIntent('StudyIntent');
+        const speech = this.t(`you-have-selected-an-invalid-set-number`, {
+          setNamesString: this.$session.$data.setNames.join(', '),
+        });
 
+        this.followUpState(`ChoosingSetState`)
+          .ask(speech, speech);
       }
     }
   },
   AskingQuestionState: {
     YesIntent() {
-      let speech;
+      let speech = ``;
+
+      if (this.$session.$data.speechFromPreviousHandler) {
+        speech += this.$session.$data.speechFromPreviousHandler;
+        this.$session.$data.speechFromPreviousHandler = null;
+      }
 
       let card = this.$session.$data.cards[this.$session.$data.cardIndex];
 
@@ -175,21 +169,22 @@ app.setHandler({
       for (questionLocale in card) {
         if (questionLocale !== deviceLocale) {
           question = card[questionLocale];
+          break;
         }
       }
 
       const questionWrappedWithSsml = wrapStringWithLanguageSsml(question, questionLocale);
 
-      speech = this.t('question_introduction', {
+      speech += ` ` + this.t(`question_introduction`, {
         cardIndex: this.$session.$data.cardIndex,
         cardQuestion: questionWrappedWithSsml,
       });
 
-      speech += ' ' + this.t('answer_preface_reminder');
+      speech += ` ` + this.t(`answer_preface_reminder`);
 
       speech = wrapStringWithSpeakTags(speech);
 
-      this.followUpState('AnsweringQuestionState')
+      this.followUpState(`AnsweringQuestionState`)
         .ask(speech, speech);
     },
   },
@@ -228,6 +223,22 @@ app.setHandler({
       this.followUpState('ProceedingToNextCardState')
         .ask(speech,speech);
     },
+    HelpIntent() {
+      return this.toStatelessIntent(`HelpIntent`);
+    },
+    END() {
+      return this.toStatelessIntent(`END`);
+    },
+    CancelIntent() {
+      return this.toStatelessIntent(`CancelIntent`);
+    },
+    NavigateHomeIntent() {
+      return this.toStatelessIntent(`NavigateHomeIntent`);
+    },
+    Unhandled() {
+      this.$session.$data.speechFromPreviousHandler = this.$cms.t(`reminder-to-preface-answer`);
+      return this.toStateIntent(`AskingQuestionState`, `YesIntent`);
+    }
   },
   ProceedingToNextCardState: {
     YesIntent() {
@@ -246,11 +257,14 @@ app.setHandler({
         this.followUpState('EndOfDeckState')
           .ask(speech, speech);
       }
-    }
+    },
+    NoIntent() {
+      return this.toStatelessIntent(`NavigateHomeIntent`);
+    },
   },
   EndOfDeckState: {
     YesIntent() {
-      return this.toStateIntent('StudyState', 'YesIntent');
+      return this.toStateIntent('DecideWhetherToStudyState', 'YesIntent');
     },
     NoIntent() {
       return this.toStatelessIntent('END');

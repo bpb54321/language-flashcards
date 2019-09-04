@@ -1,0 +1,67 @@
+{
+  "invocation": "cartes mémoires",
+  "intents": [
+    {
+      "name": "ChooseSetIntent",
+      "phrases": [
+        "paquet numéro {setNumber}",
+        "numéro {setNumber}",
+        "{setNumber}"
+      ],
+      "inputs": [
+        {
+          "name": "setNumber",
+          "type": {
+            "alexa": "AMAZON.NUMBER"
+          }
+        }
+      ]
+    },
+    {
+      "name": "AnswerQuestionIntent",
+      "phrases": [
+        "la traduction est {answer}"
+      ],
+      "inputs": [
+        {
+          "name": "answer",
+          "type": {
+            "alexa": "AMAZON.SearchQuery"
+          }
+        }
+      ]
+    }
+  ],
+  "alexa": {
+    "interactionModel": {
+      "languageModel": {
+        "intents": [
+          {
+            "name": "AMAZON.CancelIntent",
+            "samples": []
+          },
+          {
+            "name": "AMAZON.HelpIntent",
+            "samples": []
+          },
+          {
+            "name": "AMAZON.StopIntent",
+            "samples": []
+          },
+          {
+            "name": "AMAZON.NavigateHomeIntent",
+            "samples": []
+          },
+          {
+            "name": "AMAZON.YesIntent",
+            "samples": []
+          },
+          {
+            "name": "AMAZON.NoIntent",
+            "samples": []
+          }
+        ]
+      }
+    }
+  }
+}

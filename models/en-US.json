@@ -1,28 +1,32 @@
 {
-	"invocation": "my test app",
+	"invocation": "language flashcards",
 	"intents": [
 		{
-			"name": "HelloWorldIntent",
+			"name": "ChooseSetIntent",
 			"phrases": [
-				"hello",
-				"say hello",
-				"say hello world"
-			]
-		},
-		{
-			"name": "MyNameIsIntent",
-			"phrases": [
-				"{name}",
-				"my name is {name}",
-				"i am {name}",
-				"you can call me {name}"
+				"pack number {setNumber}",
+				"number {setNumber}",
+				"{setNumber}"
 			],
 			"inputs": [
 				{
-					"name": "name",
+					"name": "setNumber",
 					"type": {
-						"alexa": "AMAZON.US_FIRST_NAME",
-						"dialogflow": "@sys.given-name"
+						"alexa": "AMAZON.NUMBER"
+					}
+				}
+			]
+		},
+		{
+			"name": "AnswerQuestionIntent",
+			"phrases": [
+				"the translation is {answer}"
+			],
+			"inputs": [
+				{
+					"name": "answer",
+					"type": {
+						"alexa": "AMAZON.SearchQuery"
 					}
 				}
 			]
@@ -43,29 +47,21 @@
 					{
 						"name": "AMAZON.StopIntent",
 						"samples": []
+					},
+					{
+						"name": "AMAZON.NavigateHomeIntent",
+						"samples": []
+					},
+					{
+						"name": "AMAZON.YesIntent",
+						"samples": []
+					},
+					{
+						"name": "AMAZON.NoIntent",
+						"samples": []
 					}
 				]
 			}
 		}
-	},
-	"dialogflow": {
-		"intents": [
-			{
-				"name": "Default Fallback Intent",
-				"auto": true,
-				"webhookUsed": true,
-				"fallbackIntent": true
-			},
-			{
-				"name": "Default Welcome Intent",
-				"auto": true,
-				"webhookUsed": true,
-				"events": [
-					{
-						"name": "WELCOME"
-					}
-				]
-			}
-		]
 	}
 }

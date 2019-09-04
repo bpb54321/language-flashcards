@@ -1,6 +1,6 @@
 {
   "name": "jovo-flashcard-app",
-  "version": "1.0",
+  "version": "2.0.2",
   "description": "A voice app built using the Jovo Framework which quizzes you on flashcards.",
   "main": "src/index.js",
   "dependencies": {
