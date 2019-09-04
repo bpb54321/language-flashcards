@@ -169,6 +169,7 @@ app.setHandler({
       for (questionLocale in card) {
         if (questionLocale !== deviceLocale) {
           question = card[questionLocale];
+          break;
         }
       }
 
